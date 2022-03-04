@@ -1,0 +1,56 @@
+#include <msp430.h> 
+
+#define SWl  BIT3                    // Switch -> P1.3 (On-board Switch, Pull-Up configuration)
+#define swr  BIT4                    // Red LED -> P1.7 (On-Board LED, Active High Configuration)
+
+#define M1P  BIT0                    // Switch -> P1.3 (On-board Switch, Pull-Up configuration)
+#define M1N  BIT1                    // Red LED -> P1.7 (On-Board LED, Active High Configuration)
+#define M2P  BIT0                    // Switch -> P1.3 (On-board Switch, Pull-Up configuration)
+#define M2N  BIT1                    // Red LED -> P1.7 (On-Board LED, Active High Configuration)
+
+/*@brief entry point for the code*/
+void main(void) {
+    WDTCTL = WDTPW | WDTHOLD;       //! Stop Watchdog (Not recommended for code in production and devices working in field)
+
+    P1DIR |= LED;                   // Set LED pin -> Output
+
+    P1DIR &= ~SWl;                   // Set SW pin -> Input
+    P1DIR &= ~SWr;                   // Set SW pin -> Input
+
+    P2DIR |= M1N;                   // Set SW pin -> Input
+    P2DIR |= M1P;                   // Set SW pin -> Input
+    P2DIR |= M2N;                   // Set SW pin -> Input
+    P2DIR |= M2P;                   // Set SW pin -> Input
+
+    while(1)
+    {
+        if(!(P1IN & SWl))            // If SW is Pressed
+        {
+            P2OUT = 0x01;
+        }
+        else
+        {
+            P2OUT = 0x09;
+        }
+        if(!(P1IN & SWr))            // If SW is Pressed
+        {
+            P2OUT = 0x08;
+        }
+        else
+        {
+            P2OUT = 0x09;
+        }
+
+        if(!(P1IN & SW3))            // If SW is Pressed
+                {
+                    while(!(P1IN & SW3));    // Wait till SW Released
+                    P1OUT ^= LED;           // Toggle LED
+                }
+
+        if(!(P1IN & SW4))            // If SW is Pressed
+                {
+                    while(!(P1IN & SW4));    // Wait till SW Released
+                    P1OUT ^= LED;           // Toggle LED
+                }
+    }
+}
